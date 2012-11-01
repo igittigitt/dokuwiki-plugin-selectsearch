@@ -27,11 +27,22 @@ class action_plugin_selectsearch extends DokuWiki_Action_Plugin {
         }
     }
 
-    function tpl_searchform($namespaces) {
+    function tpl_searchform() {
+
         global $QUERY;
+
+        $searchnamespaces = explode(",",$this->getConf('searchnamespaces'));
+        foreach ($searchnamespaces as $ns) {
+            list($namespace,$displayname) = explode(">",$ns);
+            trim($namespace);
+            trim($displayname);
+            $namespaces[$namespace] = $displayname;
+        }
+
         $cur_val = isset($_REQUEST['namespace']) ? $_REQUEST['namespace'] : '';
 
-        echo '<form method="post" action="" accept-charset="utf-8">';
+        echo '<form id="dw__search" class="search" method="post" accept-charset="utf-8" action="">';
+        echo '<div class="no">';
         echo '<select class="selectsearch_namespace" name="namespace">';
         foreach ($namespaces as $ns => $displayname){
             echo '<option value="'.hsc($ns).'"'.($cur_val === $ns ? ' selected="selected"' : '').'>'.hsc($displayname).'</option>';
@@ -39,8 +50,10 @@ class action_plugin_selectsearch extends DokuWiki_Action_Plugin {
         echo '</select>';
         echo '<input type="hidden" name="do" value="search" />';
         echo '<input type="hidden" id="qsearch__in"/>';
-        echo '<input class="query" id="selectsearch__input" type="text" name="id" autocomplete="off" value="'.hsc(preg_replace('/ ?@\S+/','',$QUERY)).'" accesskey="f" />';
-        echo '<input class="submit" type="submit" name="submit" value="Search" />';
+        echo '<input class="edit" id="selectsearch__input" type="text" name="id" autocomplete="off" title="[F]" value="'.hsc(preg_replace('/ ?@\S+/','',$QUERY)).'" accesskey="f" />';
+        echo '<input class="button" type="submit" title="Search" value="Search">';
+        echo '<div id="qsearch__out" class="ajax_qsearch JSpopup" style="display: none;"></div>';
+        echo '</div>';
         echo '</form>';
     }
 }
